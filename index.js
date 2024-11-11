@@ -32,22 +32,29 @@ app.get('/', (req, res) => {
 
 // Handle POST request from frontend
 app.post('/submit', (req, res) => {
-    const { name, email, message } = req.body; // Get email from request body
-    console.log(req.body);
-    if (!name || !email || !message) {  // Check if email is provided
-      return res.status(400).json({ error: 'Name, email, and message are required' });
+  const { name, email, message } = req.body;
+  
+  // Log the received data for debugging
+  console.log(req.body);
+
+  // Check if required fields are missing
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Name, email, and message are required' });
+  }
+
+  // Insert the data into the MySQL database
+  const query = 'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)';
+  db.query(query, [name, email, message], (err, result) => {
+    if (err) {
+      console.error('Error inserting data into database:', err);
+      return res.status(500).json({ error: 'Database error' });
     }
-  
-    const query = 'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)'; // Insert email into DB
-    db.query(query, [name, email, message], (err, result) => {
-      if (err) {
-        console.error('Error inserting data into database:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-  
-      res.status(201).json({ message: 'Data submitted successfully', id: result.insertId });
-    });
+
+    // Return success response
+    res.status(201).json({ message: 'Data submitted successfully', id: result.insertId });
+  });
 });
+
 
 // Admin panel route (to prompt for password and fetch messages)
 app.get('/admin', (req, res) => {
