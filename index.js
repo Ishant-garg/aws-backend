@@ -15,8 +15,7 @@ const db = mysql.createConnection({
   port : 3306,
   user: 'admin',
   password: '25347869',
-  database: 'my_db' ,
-   
+  database: 'my_db',
 }); 
 
 db.connect(err => {
@@ -26,19 +25,21 @@ db.connect(err => {
     console.log('Connected to DB');
   }
 });
+
 app.get('/', (req, res) => { 
   res.send('Hello World!');
-})
+});
+
 // Handle POST request from frontend
 app.post('/submit', (req, res) => {
-    const { name, message } = req.body;
+    const { name, email, message } = req.body; // Get email from request body
     console.log(req.body);
-    if (!name || !message) {
-      return res.status(400).json({ error: 'Name and message are required' });
+    if (!name || !email || !message) {  // Check if email is provided
+      return res.status(400).json({ error: 'Name, email, and message are required' });
     }
   
-    const query = 'INSERT INTO messages (name, message) VALUES (?, ?)';
-    db.query(query, [name, message], (err, result) => {
+    const query = 'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)'; // Insert email into DB
+    db.query(query, [name, email, message], (err, result) => {
       if (err) {
         console.error('Error inserting data into database:', err);
         return res.status(500).json({ error: 'Database error' });
@@ -46,10 +47,9 @@ app.post('/submit', (req, res) => {
   
       res.status(201).json({ message: 'Data submitted successfully', id: result.insertId });
     });
-  });
+});
 
-
-  // Route to fetch and display messages
+// Admin panel route (to prompt for password and fetch messages)
 app.get('/admin', (req, res) => {
   // Password prompt in the browser
   res.send(`
@@ -62,9 +62,9 @@ app.get('/admin', (req, res) => {
         fetch("/admin/data")
           .then(response => response.json())
           .then(data => {
-            let output = "<h1>Messages Table Data</h1><table border='1'><tr><th>ID</th><th>Name</th><th>Message</th></tr>";
+            let output = "<h1>Messages Table Data</h1><table border='1'><tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th></tr>";
             data.forEach(row => {
-              output += "<tr><td>" + row.id + "</td><td>" + row.name + "</td><td>" + row.message + "</td></tr>";
+              output += "<tr><td>" + row.id + "</td><td>" + row.name + "</td><td>" + row.email + "</td><td>" + row.message + "</td></tr>";
             });
             output += "</table>";
             document.body.innerHTML = output;
@@ -78,7 +78,7 @@ app.get('/admin', (req, res) => {
   `);
 });
 
-// Route to fetch data from the messages table
+// Route to fetch data from the messages table (with email)
 app.get('/admin/data', (req, res) => {
   const query = 'SELECT * FROM messages';
   db.query(query, (err, results) => {
@@ -90,6 +90,7 @@ app.get('/admin/data', (req, res) => {
     }
   });
 });
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('Server is running on port 3000');
