@@ -1,0 +1,20 @@
+{
+    "name": "contact-form-app",
+    "version": "1.0.0",
+    "description": "A simple contact form app using Node.js, Express, and MySQL",
+    "main": "app.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.17.1",
+        "morgan": "^1.10.0",
+        "mysql": "^2.18.1",
+        "nodemon": "^3.1.7"
+    },
+    "author": "",
+    "license": "ISC"
+}
