@@ -32,19 +32,19 @@ app.get('/', (req, res) => {
 
 // Handle POST request from frontend
 app.post('/submit', (req, res) => {
-  const { name, email, message } = req.body;
+  const { name,  message } = req.body;
   
   // Log the received data for debugging
   console.log(req.body);
 
   // Check if required fields are missing
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'Name, email, and message are required' });
+  if (!name  || !message) {
+    return res.status(400).json({ error: 'Name and message are required' });
   }
 
   // Insert the data into the MySQL database
-  const query = 'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)';
-  db.query(query, [name, email, message], (err, result) => {
+  const query = 'INSERT INTO messages (name , message) VALUES ( ?, ?)';
+  db.query(query, [name , message], (err, result) => {
     if (err) {
       console.error('Error inserting data into database:', err);
       return res.status(500).json({ error: 'Database error' });
@@ -62,16 +62,16 @@ app.get('/admin', (req, res) => {
   res.send(`
     <script>
       const password = prompt("Please enter the admin password:");
-      if (password !== "yourAdminPassword") {
+      if (password !== "12345678") {
         alert("Incorrect password!");
         window.location.href = "/";
       } else {
         fetch("/admin/data")
           .then(response => response.json())
           .then(data => {
-            let output = "<h1>Messages Table Data</h1><table border='1'><tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th></tr>";
+            let output = "<h1>Messages Table Data</h1><table border='1'><tr><th>ID</th><th>Name</th><th>Message</th></tr>";
             data.forEach(row => {
-              output += "<tr><td>" + row.id + "</td><td>" + row.name + "</td><td>" + row.email + "</td><td>" + row.message + "</td></tr>";
+              output += "<tr><td>" + row.id + "</td><td>" + row.name + "</td><td>" + row.message + "</td></tr>";
             });
             output += "</table>";
             document.body.innerHTML = output;
@@ -83,9 +83,10 @@ app.get('/admin', (req, res) => {
       }
     </script>
   `);
+  
 });
 
-// Route to fetch data from the messages table (with email)
+ 
 app.get('/admin/data', (req, res) => {
   const query = 'SELECT * FROM messages';
   db.query(query, (err, results) => {
